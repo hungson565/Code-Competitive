@@ -1,4 +1,4 @@
-// build: g++ -o ProblemA ProblemA.cpp -std=c++11 && ProblemA
+// build: g++ -o ProblemD ProblemD.cpp -std=c++11 && ProblemD
 
 #include <iostream>
 #include <vector>
@@ -11,7 +11,6 @@ using namespace std;
 #include <map>
 #include <vector>
 #include <deque>
-
 
 // C++ Program to implement the
 // above approach
@@ -27,7 +26,7 @@ typedef tree<int, null_type,
 
 // Input, output
 #include <iostream>
-string file_name = "ProblemA.in";
+string file_name = "ProblemD.in";
 ifstream input;
 
 void solve() {
