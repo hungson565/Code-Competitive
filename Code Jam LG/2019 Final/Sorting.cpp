@@ -36,7 +36,7 @@ void solve() {
     
     int tich_luy = 0;
 
-    while (M > N - 1) {
+    while (M >= N - 1) {
         M -= N - 1;
         N--;
         tich_luy++;

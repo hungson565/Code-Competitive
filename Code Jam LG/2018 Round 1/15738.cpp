@@ -19,7 +19,6 @@ using namespace std;
 3
 -4
 
-
 */
 
 void solve() {
@@ -34,37 +33,32 @@ void solve() {
     vector<int> data;
     for (int i = 0; i < N; i++) {
         scanf("%d", &val);
-        // data.push_back(val);
     }
 
-    int e;
-    int idx = K - 1;
-//    cout << "initial, idx: " << idx << endl;
+    int operand;
+    int idx = K;
     for (int i = 0; i < M; i++) {
-        scanf("%d", &e);
+        scanf("%d", &operand);
         // process
-        if (e == 0) {
+        if (operand == 0) {
             continue;
         }
-        bool left = e > 0;
-        e = abs(e);
+        bool left = operand > 0;
+        operand = abs(operand);
 
         if (left) {
-            if (idx > e - 1) {
-//            	cout << "continue 1" << endl;
+            if (idx > operand) {
                 continue;
             }
-            idx = e - 1 - idx;
+            idx = operand + 1 - idx;
         } else {
-            if (N - 1 - e >= idx) {
-//            	cout << "continue 2" << endl;
+            if (N + 1 - operand > idx) {
                 continue;
             }
-            idx = N + N - 1 - e - idx;
+            idx = N + N - 3 - operand - idx;
         }
-//        cout << "after i: " << i << ", idx: " << idx << endl;
     }
-    cout << idx + 1 << endl;
+    cout << idx << endl;
 }
 
 int main() {

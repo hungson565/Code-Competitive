@@ -26,3 +26,31 @@ bool isPrime(int n) {
     return true;
 }
 
+
+//----------------------------------------
+
+#define MAXV 1000111
+
+bool isPrime[MAXV];
+int cntPrimeFactors[MAXV];
+
+int main() {
+
+    memset(isPrime, true, sizeof(isPrime));
+    memset(cntPrimeFactors, 0, sizeof(cntPrimeFactors));
+    vector<int> primes;
+
+    isPrime[1] = false;
+    for (int i = 2; i < MAXV; i++) {
+        if (!isPrime) {
+            continue;
+        }
+        primes.push_back(i);
+        for (int j = 2 * i; j < MAXV; j += i) {
+            cntPrimeFactors[j]++;
+        }
+    }
+
+    return 0;
+}
+

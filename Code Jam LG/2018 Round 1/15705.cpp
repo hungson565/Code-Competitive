@@ -26,7 +26,9 @@ ACBCE
 
 */
 
-
+string st(char c) {
+    return string(1, c);
+}
 
 void solve() {
     string s;
@@ -49,18 +51,13 @@ void solve() {
         return;
     }
 
-    // for (auto e : data) {
-    //     cout << e << endl;
-    // }
-
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             // right
             {
                 string right;
                 for (int k = 0; k < N && j + k < m; k++) {
-                    right += string(1, data[i][j + k]);
-                    // cout << "k: " << k << ", string(1, data[i][k]: " << data[i][k] << endl;
+                    right += st(data[i][j + k]);
                 }
                 // cout << "i: " << i << ", j: " << j << ", right: " << right << endl;
                 if (right == s) {
@@ -72,7 +69,7 @@ void solve() {
             {
                 string left;
                 for (int k = 0; k < N && j - k >= 0; k++) {
-                    left += string(1, data[i][j - k]);
+                    left += st(data[i][j - k]);
                 }
                 if (left == s) {
                     cout << "1" << endl;
@@ -83,7 +80,7 @@ void solve() {
             {
                 string down;
                 for (int k = 0; k < N && i + k < n; k++) {
-                    down += string(1, data[i + k][j]);
+                    down += st(data[i + k][j]);
                 }
                 if (down == s) {
                     cout << "1" << endl;
@@ -94,7 +91,7 @@ void solve() {
             {
                 string up;
                 for (int k = 0; k < N && i - k >= 0; k++) {
-                    up += string(1, data[i - k][j]);
+                    up += st(data[i - k][j]);
                 }
                 if (up == s) {
                     cout << "1" << endl;
@@ -105,7 +102,7 @@ void solve() {
             {
                 string diag_left;
                 for (int k = 0; k < N && i + k < n && j + k < m; k++) {
-                    diag_left += string(1, data[i + k][j + k]);
+                    diag_left += st(data[i + k][j + k]);
                 }
                 // cout << "i: " << i << ", j: " << j << ", diag_left: " << diag_left << endl;
                 if (diag_left == s) {
@@ -117,7 +114,7 @@ void solve() {
             {
                 string diag_right;
                 for (int k = 0; k < N && i + k < n && j - k >= 0; k++) {
-                    diag_right += string(1, data[i + k][j - k]);
+                    diag_right += st(data[i + k][j - k]);
                 }
                 if (diag_right == s) {
                     cout << "1" << endl;
@@ -128,7 +125,7 @@ void solve() {
             {
                 string diag_left;
                 for (int k = 0; k < N && i - k >= 0 && j + k < m; k++) {
-                    diag_left += string(1, data[i - k][j + k]);
+                    diag_left += st(data[i - k][j + k]);
                 }
                 // cout << "i: " << i << ", j: " << j << ", diag_left: " << diag_left << endl;
                 if (diag_left == s) {
@@ -141,7 +138,7 @@ void solve() {
             {
                 string diag_right;
                 for (int k = 0; k < N && i - k >= 0 && j - k >= 0; k++) {
-                    diag_right += string(1, data[i - k][j - k]);
+                    diag_right += st(data[i - k][j - k]);
                 }
                 if (diag_right == s) {
                     cout << "1" << endl;

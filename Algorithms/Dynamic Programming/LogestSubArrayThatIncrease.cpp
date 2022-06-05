@@ -30,16 +30,6 @@ int main() {
 		}
 		D[i] = 1 + max;
 	}
-	
-//	cout << "D:" << endl;
-//	
-//	for (int i = 0 ; i < N ; ++i) {
-//		cout << D[i] << " ";
-//	}
-//	
-//	cout << endl;
-//	
-//	cout << "Result:" << endl;
 
 	int found = 1;
 	for (int i = 1; i < N - 1; ++i) {

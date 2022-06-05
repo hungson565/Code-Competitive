@@ -7,12 +7,6 @@ public:
         int e;
         int profit;
     };
-    bool conflict(T t1, T t2) {
-        if (t1.s < t2.e || t1.e < t2.s) {
-            return true;
-        }
-        return false;
-    }
     int jobScheduling(vector<int>& startTime, vector<int>& endTime, vector<int>& profit) {
         int n = startTime.size();
         vector<T> data;

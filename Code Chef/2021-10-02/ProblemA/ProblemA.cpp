@@ -1,55 +1,77 @@
-// build: g++ -o ProblemA ProblemA.cpp -std=c++11 && ProblemA
+// https://www.spoj.com/problems/KQUERY/
 
-#include <iostream>
-#include <vector>
-using namespace std;
 #include <bits/stdc++.h>
-#include <algorithm>
-#include <unordered_map>
-#include <unordered_set>
-#include <set>
-#include <map>
-#include <vector>
-#include <deque>
-
-// C++ Program to implement the
-// above approach
-#include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
- 
 using namespace std;
-using namespace __gnu_pbds;
-typedef tree<int, null_type,
-             less_equal<int>, rb_tree_tag,
-             tree_order_statistics_node_update>
-    Ordered_set;
 
-// Input, output
-#include <iostream>
-string file_name = "ProblemA.in";
-ifstream input;
+class ST {
+  int n;
+  vector<vector<int>> tree;
+public:
+  ST(const vector<int>& data) {
+    int N = data.size();
+    n = N;
+    tree.resize(2 * n);
+    for (int i = 0; i < n; i++) {
+      tree[i + n] = {data[i]};
+    }
+    build();
+  }
 
-void solve() {
-    // code here
-    int n;
-    input >> n;
-    cout << "got: " << n << endl;
-}
+  void build() {  // build the tree
+    for (int i = n - 1; i > 0; --i) tree[i] = merge(tree[i<<1].begin(), tree[i<<1].end(), tree[i<<1|1].begin(), tree[i<<1|1].end());
+  }
+
+  // void modify(int p, int value) {  // set value at position p
+  //   for (tree[p += n] = value; p > 1; p >>= 1) tree[p>>1] = tree[p] + tree[p^1];
+  // }
+
+  int query(int l, int r, int k) {  // sum on interval [l, r]
+    r++;
+    int res = 0;
+    for (l += n, r += n; l < r; l >>= 1, r >>= 1) {
+      if (l&1) {
+        res += tree[l].end() - upper_bound(tree[l].begin(), tree[l].end(), k);
+        l++;
+      }
+      if (r&1) {
+        r--;
+        res += tree[r].end() - upper_bound(tree[r].begin(), tree[r].end(), k);
+      }
+    }
+    return res;
+  }  
+};
+/*
+5
+5 1 2 3 4
+3
+2 4 1
+4 4 4
+1 5 2 
+*/
 
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-    int t;
+  int N;
+  cin >> N;
 
-    set<int> a;
+  vector<int> data;
+  int val;
 
-    input.open(file_name);
+  for (int i = 0; i < N; i++) {
+    cin >> val;
+    data.push_back(val);
+    cout << "val: " << val << endl;
+  }
 
-    input >> t;
-    while (t--) {
-        solve();
-    }
+  int M;
+  cin >> M;
+  int l, r, k;
+  ST st(data);
 
-    input.close();
-    return 0;
+  for (int i = 0; i < M; i++) {
+      cin >> l >> r >> k;
+    //   cout << data.query(l, r, k) << endl;
+  }
+
+  return 0;
 }

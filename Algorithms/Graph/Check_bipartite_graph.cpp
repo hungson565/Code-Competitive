@@ -1,86 +1,85 @@
-// https://www.geeksforgeeks.org/bipartite-graph/
+// https://www.geeksforgeeks.org/check-if-a-given-graph-is-bipartite-using-dfs/
 
-// https://leetcode.com/problems/is-graph-bipartite/discuss/1446740/C%2B%2B-SIMPLE-DFS-(faster-than-99.93)
-
-// C++ program to find out whether a
-// given graph is Bipartite or not
-#include <iostream>
-#include <queue>
-#define V 4
-
+// C++ program to check if a connected
+// graph is bipartite or not using DFS
+#include <bits/stdc++.h>
 using namespace std;
-
-// This function returns true if graph
-// G[V][V] is Bipartite, else false
-bool isBipartite(int G[][V], int src)
+ 
+// function to store the connected nodes
+void addEdge(vector<int> adj[], int u, int v)
 {
-	// Create a color array to store colors
-	// assigned to all vertices. Vertex
-	// number is used as index in this array.
-	// The value '-1' of colorArr[i]
-	// is used to indicate that no color
-	// is assigned to vertex 'i'. The value 1
-	// is used to indicate first color
-	// is assigned and value 0 indicates
-	// second color is assigned.
-	int colorArr[V];
-	for (int i = 0; i < V; ++i)
-		colorArr[i] = -1;
-
-	// Assign first color to source
-	colorArr[src] = 1;
-
-	// Create a queue (FIFO) of vertex
-	// numbers and enqueue source vertex
-	// for BFS traversal
-	queue <int> q;
-	q.push(src);
-
-	// Run while there are vertices
-	// in queue (Similar to BFS)
-	while (!q.empty())
-	{
-		// Dequeue a vertex from queue ( Refer http://goo.gl/35oz8 )
-		int u = q.front();
-		q.pop();
-
-		// Return false if there is a self-loop
-		if (G[u][u] == 1)
-		return false;
-
-		// Find all non-colored adjacent vertices
-		for (int v = 0; v < V; ++v)
-		{
-			// An edge from u to v exists and
-			// destination v is not colored
-			if (G[u][v] && colorArr[v] == -1)
-			{
-				// Assign alternate color to this adjacent v of u
-				colorArr[v] = 1 - colorArr[u];
-				q.push(v);
-			}
-
-			// An edge from u to v exists and destination
-			// v is colored with same color as u
-			else if (G[u][v] && colorArr[v] == colorArr[u])
-				return false;
-		}
-	}
-
-	// If we reach here, then all adjacent
-	// vertices can be colored with alternate color
-	return true;
+    adj[u].push_back(v);
+    adj[v].push_back(u);
 }
-
-// Driver program to test above function
+ 
+// function to check whether a graph is bipartite or not
+bool isBipartite(vector<int> adj[], int v,
+                 vector<bool>& visited, vector<int>& color)
+{
+ 
+    for (int u : adj[v]) {
+ 
+        // if vertex u is not explored before
+        if (visited[u] == false) {
+ 
+            // mark present vertic as visited
+            visited[u] = true;
+ 
+            // mark its color opposite to its parent
+            color[u] = !color[v];
+ 
+            // if the subtree rooted at vertex v is not bipartite
+            if (!isBipartite(adj, u, visited, color))
+                return false;
+        }
+ 
+        // if two adjacent are colored with same color then
+        // the graph is not bipartite
+        else if (color[u] == color[v])
+            return false;
+    }
+    return true;
+}
+ 
+// Driver Code
 int main()
 {
-	int G[][V] = {{0, 1, 0, 1},
-		{1, 0, 1, 0},
-		{0, 1, 0, 1},
-		{1, 0, 1, 0}
-	};
-
-	isBipartite(G, 0) ? cout << "Yes" : cout << "No";
-	return 0;
+    // no of nodes
+    int N = 6;
+ 
+    // to maintain the adjacency list of graph
+    vector<int> adj[N + 1];
+ 
+    // to keep a check on whether
+    // a node is discovered or not
+    vector<bool> visited(N + 1);
+ 
+    // to color the vertices
+    // of graph with 2 color
+    vector<int> color(N + 1);
+ 
+    // adding edges to the graph
+    addEdge(adj, 1, 2);
+    addEdge(adj, 2, 3);
+    addEdge(adj, 3, 4);
+    addEdge(adj, 4, 5);
+    addEdge(adj, 5, 6);
+    addEdge(adj, 6, 1);
+ 
+    // marking the source node as visited
+    visited[1] = true;
+ 
+    // marking the source node with a color
+    color[1] = 0;
+ 
+    // Function to check if the graph
+    // is Bipartite or not
+    if (isBipartite(adj, 1, visited, color)) {
+        cout << "Graph is Bipartite";
+    }
+    else {
+        cout << "Graph is not Bipartite";
+    }
+ 
+    return 0;
 }

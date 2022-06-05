@@ -1,31 +1,54 @@
-// https://codejam.lge.com/problem/16201
+// https://codejam.lge.com/problem/23024
 
-// build: g++ -o FunWithTiles FunWithTiles.cpp -std=c++11 && FunWithTiles
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <iostream>
-#include <vector>
 #include <bits/stdc++.h>
-#include <algorithm>
-#include <unordered_map>
 using namespace std;
 
-/*
+#include <ext/pb_ds/assoc_container.hpp>
 
-4 5 6
-1 2
-1 3
-3 1
-4 3
-4 4
-4 5
+using namespace std;
+using namespace __gnu_pbds;
 
-1 3 0
+#define int long long
+#define INF 1e9 + 5
+ 
+// Policy based data structure
+typedef tree<int, null_type,
+             less_equal<int>, rb_tree_tag,
+             tree_order_statistics_node_update>
+    Ordered_set;
 
+class ST {
+  int n;
+  vector<int> tree;
+public:
+  ST(const vector<int>& data) {
+    int N = data.size();
+    n = N;
+    tree.resize(2 * n);
+    for (int i = 0; i < n; i++) {
+      tree[i + n] = data[i];
+    }
+    build();
+  }
 
-*/
+  void build() {  // build the tree
+    for (int i = n - 1; i > 0; --i) tree[i] = tree[i<<1] + tree[i<<1|1];
+  }
+
+  void modify(int p, int value) {  // set value at position p
+    for (tree[p += n] = value; p > 1; p >>= 1) tree[p>>1] = tree[p] + tree[p^1];
+  }
+
+  int query(int l, int r) {  // sum on interval [l, r]
+    r++;
+    int res = 0;
+    for (l += n, r += n; l < r; l >>= 1, r >>= 1) {
+      if (l&1) res += tree[l++];
+      if (r&1) res += tree[--r];
+    }
+    return res;
+  }  
+};
 
 struct Point {
     int x;
@@ -33,110 +56,107 @@ struct Point {
     Point(int xx, int yy) : x(xx), y(yy) {}
 };
 
-void solve() {
-	int R;
+const int MOD = 1e9 + 7;
+
+int cal(int len) {
+    if (len % 2 == 0) {
+        return 1;
+    }
+    if (len == 1) {
+        return 1;
+    }
+    return len / 2 + 1;
+}
+
+int pow(int a, int n) {
+    if (n == 0) {
+        return 1;
+    }
+    if (n == 1) {
+        return a;
+    }
+    if (n % 2 == 0) {
+        return (pow(a, n/2) * pow(a, n/2)) % MOD;
+    }
+    return (((pow(a, n/2) * pow(a, n/2)) % MOD) * a) % MOD;
+}
+
+void solve()
+{
+    int R;
     int C;
     int k;
-    scanf("%d", &R);
-    scanf("%d", &C);
-    scanf("%d", &k);
+    cin >> R >> C >> k;
+    // scanf("%d", &R);
+    // scanf("%d", &C);
+    // scanf("%d", &k);
 
-    vector<Point> x;
+    vector<Point> points;
     int x1;
     int x2;
     for (int i = 0; i < k; i++) {
-        scanf("%d", &x1);
-        scanf("%d", &x2);
-        x.push_back(Point(x1, x2));
+        cin >> x1 >> x2;
+        // scanf("%d", &x1);
+        // scanf("%d", &x2);
+        points.push_back(Point(x1, x2));
     }
 
-    unordered_map<int, vector<int>> m;
-
-    for (auto e : x) {
-        auto it = m.find(e.x);
-        if (it != m.end()) {
-            it->second.push_back(e.y);
-        } else {
-            m.emplace(e.x, vector<int>{e.y});
-        }
-        // m[e.x].push_back(e.y);
+    unordered_set<int> row;
+    for (auto p : points) {
+        row.insert(p.x);
     }
 
-    for (auto e : m) {
-        sort(e.second.begin(), e.second.end());
-    }
+    // cal in unsed rows
+    int unused_row = R - row.size();
+    int ans = 1;
+    int ans0 = 0;
 
-    int64_t sum1 = 1;
-    int64_t tile1 = 0;
-    int64_t no_full_fill_tile = R - m.size();
-    if (C % 2 == 1) {
-        for (int i = 0; i < no_full_fill_tile; i++) {
-            sum1 *= (C / 2) + 1 ;
-            sum1 = sum1 % 1000000007;
-        }
+    if (C % 2 == 0) {
+        ans = 1;
     } else {
-        // sum1 += 1;
-        // sum1 = sum1 % 1000000007;
+        ans = pow(cal(C), unused_row);
+    }
+    ans0 = unused_row * (C / 2);
+
+    // cal in used rows
+    unordered_map<int, vector<int>> m;
+    for (auto p : points) {
+        m[p.x].push_back(p.y);
     }
 
-    tile1 = (C / 2) * no_full_fill_tile;
+    for (auto &e : m) {
+        vector<int>& v = e.second;
+        sort(v.begin(), v.end());
+        v.push_back(C + 1);
 
-    int64_t sum2 = 1;
-    int tile2 = 0;
-
-    for (auto e : m) {
-        auto& row = e.second;
-        if (row[0] >= 3) {
-            // cout << "a" << endl;
-            if ((row[0] - 1) % 2 == 0) {
-                // cout << "a1" << endl;
-                // sum2++;
-            } else {
-                // cout << "a2" << endl;
-                sum2 *= (row[0] - 1) / 2 + 1;
-            }
-            tile2 += (row[0] - 1) / 2;
+        int last = 0;
+        for (auto e : v) {
+            ans = (ans * cal(e - last - 1)) % MOD;
+            ans0 += (e - last - 1) / 2;
+            last = e;
         }
-        for (int i = 1; i < row.size(); i++) {
-            //  cout << "b" << endl;
-            int val = row[i] - row[i - 1];
-            if (val >= 2) {
-                if (val % 2 == 0) {
-                    // sum2++;
-                } else {
-                    sum2 *= val / 2 + 1;
-                }
-            }
-            tile2 += (val / 2);
-        }
-        if (C - row.back() >= 2) {
-            //  cout << "c" << endl;
-            if ((C - row.back()) % 2 == 0) {
-                // sum2++;
-            } else {
-                sum2 *= (C - row.back()) / 2 + 1;
-            }
-            tile2 += (C - row.back()) / 2;
-        }
-        sum2 = sum2 % 1000000007;
     }
 
-    // cout << "sum1: " << sum1 << endl;
-    // cout << "sum2: " << sum2 << endl;
+    cout << ans0 << " " << ans << endl;
+    // printf("%lld %lld\n", ans0, ans);
 
-    int64_t ans = 0;
-
-    ans = (sum1 * sum2) % 1000000007;
-
-    // cout << "tile1: " << sum1 << endl;
-    // cout << "tile2: " << sum2 << endl;
-
-    int64_t tile = tile1 + tile2;
-
-    // cout << tile << " " << ans;
-    printf("%lld %d", tile, ans);
 }
 
-int main() {
-    solve();
+
+
+int32_t main()
+{
+
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    // int T;
+    // cin >> T;
+    // while (T > 0)
+    // {
+        solve();
+    //     T--;
+    // }
+
+    return 0;
 }

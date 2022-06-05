@@ -1,161 +1,140 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <iostream>
-#include <vector>
 #include <bits/stdc++.h>
-#include <algorithm>
-#include <unordered_map>
-#include <queue>
+#include <math.h>
 
 using namespace std;
 
-int T;
-string s;
+#define int int64_t
 
-// ALBERT
-// ALICE
+/*
 
-int score_ALBERT(int i) {
-	char c = s[i];
-	if (c == 'A' || c == 'L' || c == 'B' || c == 'E' || c == 'R' || c == 'T') {
-		return 2;
-	}
-	return 0;
+5
+ABA
+BBB
+BCCB
+CLCD
+ALBERT
+
+*/
+
+bool isAlbus(char c) {
+    // ALBERT
+    for (auto e : "ALBERT") {
+        if (e == c) {
+            return true;
+        }
+    }
+    return false;
 }
 
-int score_ALICE(int i) {
-	char c = s[i];
-	if (c == 'A' || c == 'L' || c == 'I' || c == 'C' || c == 'E') {
-		return 1;
-	}
-	return 0;
+bool isAlice(char c) {
+    // ALICE
+    for (auto e : "ALICE") {
+        if (e == c) {
+            return true;
+        }
+    }
+    return false;
 }
 
-int dp[150][150][310];
+int calVal(char c, bool albusTurn) {
+    if (albusTurn) {
+        if (isAlbus(c)) {
+            return 2;
+        } else {
+            return 0;
+        }
+    } else {
+        if (isAlice(c)) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+}
 
-// play(int m, int i, int j)
-// return minimum value that > m in range (i, j)
-// need to calculate play(0, 0, n - 1)
+bool play(string& s, int i, int j, int k, vector<vector<vector<bool>>>& dp, vector<vector<vector<bool>>>& flag) {
+    // cout << "i: " << i << ", j: " << j << ", k: " << k << endl;
+    int n = s.size();
+    bool albusTurn = true;
 
-int play(int m, int i, int j) {
-	
-	if (dp[i][j][m + 150] != -1) {
-		return dp[i][j][m + 150];
-	}
-	
-	if (i == j) {
-		if (score_ALBERT(i) > m) {
-//			cout << "----value with i: " << i << ", j: " << j << ", IS:  " << score_ALBERT(i)  << endl;
-			dp[i][j][m + 150] = score_ALBERT(i);
-		} else {
-//			cout << "----value with i: " << i << ", j: " << j << ", IS:  " << -1  << endl;
+    int len = j - i + 1;
 
-			dp[i][j][m + 150] = -99999;
-		}
-		return dp[i][j][m + 150];
-	}
-	
-	if (i == j - 1) {
-// 		int v1 = score_ALBERT(i) - score_ALICE(j);
-// 		int v2 = score_ALBERT(j) - score_ALICE(i);
-// 		int v = -99999;
-// 		if (v1 > m) {
-// //			cout << "***, v1: " << v1 << ", m: " << m << endl;
-// 			v = v1;
-// 		}
-// 		if (v2 > m && v2 < v1) {
-// 			v = v2;
-// 		}
-// 		dp[i][j][m + 150] = v;
-// 		return dp[i][j][m + 150];
+    if ((n - len) % 2 == 1) {
+        albusTurn = false;
+    }
 
-		int v = -99999;
-		if (score_ALBERT(i) == 2) { // ALBERT takes i
-			v = score_ALBERT(i) - score_ALICE(j);
-		} else  { // // ALBERT takes j
-			v = score_ALBERT(j) - score_ALICE(i);
-		}
-		dp[i][j][m + 150] = v;
-		if (dp[i][j][m + 150] <= m) {
-			dp[i][j][m + 150] = -99999;
-		}
-		return dp[i][j][m + 150];
-	}
-	
-	int value = -99999;
-	// case 1: ALBERT get j, remain: i ... j - 1
-	int value1;
-	int value2;
-// 	if (score_ALBERT(i) == 2) {
-// //		cout << "x1" << endl;
-// 		value1 = 2 - score_ALICE(j) + play(m - (2 - score_ALICE(j)), i + 1, j - 1);
-// 		value2 = 2 - score_ALICE(i + 1) + play(m - (2 - score_ALICE(i + 1)), i + 2, j);
-// 	} else if (score_ALBERT(j) == 2) {
-// //		cout << "x2" << endl;
-// 		value1 = 2 - score_ALICE(j - 1) + play(m - (2 - score_ALICE(j - 1)), i , j - 2);
-// 		value2 = 2 - score_ALICE(i) + play(m - (2 - score_ALICE(i)), i  + 1, j - 1);
-// 	} else {
-// //		cout << "x3" << endl;
-// 		value1 = 0 - score_ALICE(j - 1) + play(m - (0 - score_ALICE(j - 1)), i , j - 2);
-// 		value2 = 0 - score_ALICE(i) + play(m - (0 - score_ALICE(i)), i  + 1, j - 1);
-// 	}
-	// cout << "value1: " << value1 << ", value2: " << value2 << endl;
+    if (flag[i][j][k+ 100]) {
+        return dp[i][j][k+ 100];
+    }
 
-	if (score_ALBERT(i) == 2) { // ALBERT takes i
-//		cout << "x1" << endl;
-		value1 = 2 - score_ALICE(j) + play(m - (2 - score_ALICE(j)), i + 1, j - 1);
-		value2 = 2 - score_ALICE(i + 1) + play(m - (2 - score_ALICE(i + 1)), i + 2, j);
-	} else  { // // ALBERT takes j
-//		cout << "x2" << endl;
-		value1 = score_ALBERT(j) - score_ALICE(j - 1) + play(m - (score_ALBERT(j) - score_ALICE(j - 1)), i , j - 2);
-		value2 = score_ALBERT(j) - score_ALICE(i) + play(m - (score_ALBERT(j) - score_ALICE(i)), i  + 1, j - 1);
-	}
+    if (len <= 0) {
+        return true;
+    }
 
-	if (value1 > m) {
-		value = value1;
-	}
-	if (value2 > m && value2 < value1) {
-		value = value2;
-	}
-	
-	dp[i][j][m + 150] = value;
+    if (len == 1) {
+        if (calVal(s[i], albusTurn) == k) {
+            flag[i][j][k+ 100] = true;
+            dp[i][j][k + 100] =true;
+			return dp[i][j][k + 100];
+        } else {
+            dp[i][j][k + 100] =false;
+			return dp[i][j][k + 100];
+        }
+    }
 
-	// if (dp[i][j][m + 150] < -1) {
-	// 	dp[i][j][m + 150] = INT_MIN;
-	// }
+    if (albusTurn) {
+        if (isAlbus(s[i])) {
+            flag[i][j][k+ 100] = true;
+            dp[i][j][k + 100] = play(s, i + 1, j, k - calVal(s[i], albusTurn), dp,flag);
+			return dp[i][j][k + 100];
+        } else {
+            flag[i][j][k+ 100] = true;
+            dp[i][j][k + 100] = play(s, i, j - 1, k - calVal(s[j], albusTurn), dp,flag);
+			return dp[i][j][k + 100];
+        }
+    } else {
+        flag[i][j][k+ 100] = true;
+        dp[i][j][k + 100] = play(s, i + 1, j, k - calVal(s[i], albusTurn), dp,flag) | play(s, i, j - 1, k - calVal(s[j], albusTurn), dp,flag);
+		return dp[i][j][k + 100];
+    }
 
-//	cout << "-----value with i: " << i << ", j: " << j << ", IS:  " << value  << endl;
-
-	return dp[i][j][m + 150];
+    return true;
 }
 
 void solve() {
-	memset(dp, -1, sizeof(dp));
-	// for (int i = 0; i < 160; i++) {
-	// 	for (int j = 0; j < 160; j++) {
-	// 		for (int t = 0; t < 600; t++) {
-	// 			dp[i][j][t] = -1;
-	// 		}
-	// 	}
-	// }
-	cin >> s;
-	int n = (int)s.size();
-	int result = 0;
-	result = play(0, 0, n - 1);
-	if (result <= 0) {
-		result = -1;
-	}
-	cout << result << endl;
+
+    string s;
+    cin >> s;
+
+    int n = s.size();
+
+    vector<vector<vector<bool>>> dp(n, vector<vector<bool>>(n, vector<bool>(400, false)));
+    vector<vector<vector<bool>>> flag(n, vector<vector<bool>>(n, vector<bool>(400, false)));
+
+    int ans = -1;
+    for (int i = 1; i <= 300; i++) {
+        if (play(s, 0, n - 1, i, dp, flag)) {
+            ans = i;
+            break;
+        }
+    }
+
+    cout << ans << endl;
+
 }
 
+int32_t main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 
-int main() {
+    int T;
     cin >> T;
+    
+
     while (T > 0) {
         solve();
         T--;
     }
-	return 0;
-}
 
+    return 0;
+}
