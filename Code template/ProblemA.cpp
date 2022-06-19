@@ -30,12 +30,10 @@ typedef tree<int, null_type,
 #define ALL(a) (a).begin(), (a).end()
 #define TWO(x) (1LL<<(x))
 inline int gcd(int a, int b) {int r; while (b) {r = a % b; a = b; b = r;} return a;}
-
+ 
 #define pii pair<int, int>
 #define F first
 #define S second
-#define vii vector<int>
-#define pb push_back
  
 // For printing pair, container, etc.
 // Copied from https://quangloc99.github.io/2021/07/30/my-CP-debugging-template.html
@@ -51,7 +49,7 @@ operator << (ostream& out, const Con& con) {
     }
     return out << '}';
 }
-
+ 
 #define LOCAL
 //Warsaw template
 #define sim template < class c
@@ -92,18 +90,7 @@ struct VectorHasher {
         return hash;
     }
 };
-
-// A hash function used to hash a pair of any kind
-struct hash_pair {
-    template <class T1, class T2>
-    size_t operator()(const pair<T1, T2>& p) const
-    {
-        auto hash1 = hash<T1>{}(p.first);
-        auto hash2 = hash<T2>{}(p.second);
-        return hash1 ^ hash2;
-    }
-};
-
+ 
 class ST {
   int n;
   vector<int> tree;
@@ -117,15 +104,15 @@ public:
     }
     build();
   }
-
+ 
   void build() {  // build the tree
     for (int i = n - 1; i > 0; --i) tree[i] = tree[i<<1] + tree[i<<1|1];
   }
-
+ 
   void modify(int p, int value) {  // set value at position p
     for (tree[p += n] = value; p > 1; p >>= 1) tree[p>>1] = tree[p] + tree[p^1];
   }
-
+ 
   int query(int l, int r) {  // sum on interval [l, r]
     r++;
     int res = 0;
@@ -136,15 +123,15 @@ public:
     return res;
   }  
 };
-
+ 
 #define INF 1e9 + 5
 #define MOD 1e9 + 7
-
+ 
 // Input, output
 #include <iostream>
-
+ 
 bool isPrime[100005];
-
+ 
 void sieve(int N) {
     for(int i = 0; i <= N;++i) {
         isPrime[i] = true;
@@ -159,99 +146,78 @@ void sieve(int N) {
         }
     }
 }
-
-class DJ {
-public:
-    #define M 400000
-    DJ(int N) : N(N) {
-        init();
-    }    
-    int parent[M], rank[M];
-    int count[M];
-
-    void init() {
-        for (int i=0; i<N; i++) {
-            parent[i] = i;
-            rank[i] = 0;
-            count[i] = 1;
-        }
+ 
+// A hash function used to hash a pair of any kind
+struct hash_pair {
+    template <class T1, class T2>
+    size_t operator()(const pair<T1, T2>& p) const
+    {
+        auto hash1 = hash<T1>{}(p.first);
+        auto hash2 = hash<T2>{}(p.second);
+        return hash1 ^ hash2;
     }
-
-    int find(int u) {
-        if (parent[u] != u) parent[u] = find(parent[u]);
-        return parent[u];
-    }
-
-    void join(int u, int v) {
-        u = find(u);
-        v = find(v);
-        if (u == v) return;
-        if (rank[u] == rank[v]) rank[u]++;
-        if (rank[u] < rank[v]) {
-            parent[u] = v;
-            count[v] += count[u];
-        }
-        else {
-            parent[v] = u;
-            count[u] += count[v];
-        }
-    }
-    
-    int getCount(int i) {
-      int parent = find(i);
-      return count[parent];
-    }
-private:
-    int N;
 };
-
-
+ 
 void TC() {
-	int n, m;
-  cin >> n >> m;
-  vector<int> color(n + 1, -1);
-
-  vector<vector<int>> ke(n + 1);
-
-  int v1, v2;
-  for (int i = 0; i < m; i++) {
-    cin >> v1 >> v2;
-    ke[v1].pb(v2);
-    ke[v2].pb(v1);
-  }
-
-  queue<int> q;
-  for (int i = 1; i <= n; i++) {
-    if (color[i] != -1) continue;
-    color[i] = 1;
-    q.push(i);
-
-    while (!q.empty()) {
-      int t = q.front();
-      q.pop();
-      for (auto neighbor : ke[t]) {
-        if (color[neighbor] != -1) {
-          if (color[neighbor] == color[t]) {
-            cout << "NO" << endl;
-            return;
-          }
-        } else {
-          color[neighbor] = 1 - color[t];
-          q.push(neighbor);
+    int n, m;
+    cin >> n >> m;
+ 
+    // int a[n + 1][m + 1];
+ 
+    vector<vector<int>> a(n + 1, vector<int>(m + 1, 0));
+ 
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            cin >> a[i][j];
         }
-        
-      }
     }
 
-  }
-
-  cout << "YES" << endl;
-
+    if ((n + m - 1) % 2 == 1) {
+      cout << "NO" << endl;
+      return;
+    } 
+ 
+    // int dp[n + 10][m + 10];
+    // memset(dp, 0, sizeof(dp));
+ 
+    vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+ 
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + a[i][j];
+            // cout << "min(dp[i - 1][j], dp[i][j - 1]) : " << dp[i - 1][j]  << endl;
+            // cout << dp[i][j] << ", ";
+        }
+        // cout << endl;
+    }
+ 
+    // int dp2[n + 1][m + 1];
+    // memset(dp2, 0, sizeof(dp2));
+ 
+    vector<vector<int>> dp2(n + 1, vector<int>(m + 1, 0));
+ 
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            dp2[i][j] = max(dp2[i - 1][j], dp2[i][j - 1]) + a[i][j];
+        }
+    }
+    // cout << dp << endl;
+    // cout << a[1][2] << endl;
+    // for (int i = 1; i <= n; i++) {
+    //     for (int j = 1; j <= m; j++) {
+    //         cout << dp[i][j] << ", ";
+    //     }
+    //     cout << endl;
+    // }
+ 
+    if (dp[n][m] <= 0 && dp2[n][m] >= 0) {
+        cout << "YES" << endl;
+    } else
+        cout << "NO" << endl;
+ 
 }
 int32_t main() {
-	ios::sync_with_stdio(false);
 	cin.tie(NULL);
-	// cout.tie(NULL);
 	int t;
 	cin >> t;
 	while(t--)
