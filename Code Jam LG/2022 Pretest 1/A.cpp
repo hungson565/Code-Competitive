@@ -207,108 +207,25 @@ private:
 
 
 void TC() {
-	int n, x, y, z;
-  cin >> n >> x >> y >> z;
+	int n, x, y;
+  cin >> n >> x >> y;
+  vector<int> v(n);
+  for (auto& e : v) cin >> e;
 
-  vector<int> arr(n);
-  for (auto& e : arr) cin >> e;
-
-  int max_len = INT_MAX;
-  if (y != 0) {
-    max_len = x / y;
+  int vn = v[n - 1];
+  int vmax = 0;
+  for (int i = 0; i < n - 1; i++) {
+    vmax = max(vmax, v[i]);
   }
 
-  if (max_len == 0 && x < z) {
-    cout << -1 << endl;
-    return;
-  }
+  int ans = ((x + vn) * vmax - vn * x) / vmax;
+  ans++;
 
-  for (auto& e : arr) e -= y;
+  if (ans <= vn) ans = 0;
+  else if (ans > y) ans = -1;
 
-  // cout << arr << endl;
+  cout << ans << endl;
 
-  // find 1 window with len <= max_len that sum >= z
-
-  int i = 0;
-  int j = 0;
-
-  int sum = arr[0];
-  int ans_i = -1;
-  int ans_j = -1;
-  int len = INT_MAX;
-  // cout << "z: " << z << ", sum: " << sum << endl;
-
-  if (n == 1 && sum >= z) {
-    cout << 1 << " " << 1 << endl;
-    return;
-  }
-
-  while (i < n - 1 || j < n - 1) {
-    // cout << "i: " << i << ", j: " << j << ", sum: " << sum << endl;
-    if (sum >= z) {
-      if (len >= j - i + 1 && j - i + 1 <= max_len) {
-        ans_i = i;
-        ans_j = j;
-        len = j - i + 1;
-        // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-      }
-      // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-      while (i < j && (arr[i] <= 0 || (sum >= z))) {
-        sum -= arr[i];
-        i++;
-        if (sum >= z) {
-          if (len >= j - i + 1 && j - i + 1 <= max_len) {
-            ans_i = i;
-            ans_j = j;
-            len = j - i + 1;
-            // cout << "AA ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-            // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-          }
-        }
-      }
-      if (i == j && sum >= z) {
-        ans_i = i;
-        ans_j = j;
-        len = j - i + 1;
-        // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-        // cout << "BB ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-        if (j < n - 1) {
-          j++;
-          sum += arr[j];
-          // cout << "JJ2j: " << j << ", arr[j]: " << arr[j] << endl;
-        } else {
-          break;
-        }
-        
-      }
-    } else {
-      if (j < n - 1) {
-        j++;
-        sum += arr[j];
-        // cout << "JJ2j: " << j << ", arr[j]: " << arr[j] << endl;
-      } else {
-        break;
-      }
-    }
-  }
-
-  while (i < n) {
-    if (sum >= 0 && len <= j - i + 1 && j - i + 1 <= max_len) {
-      ans_i = i;
-      ans_j = j;
-      len = j - i + 1;
-    }
-    sum -= arr[i];
-    i++;
-  }
-
-
-  if (ans_i == -1 && ans_j == -1) {
-    cout << -1 << endl;
-    return;
-  }
-  
-  cout << ans_i + 1 << " " << ans_j + 1 << endl;
 }
 int32_t main() {
 	ios::sync_with_stdio(false);

@@ -1,3 +1,5 @@
+// https://codejam.lge.com/problem/15704
+
 #include <iostream>
  
 // C++ Program to implement the
@@ -205,118 +207,88 @@ private:
     int N;
 };
 
+struct Ke {
+  int v;
+  int C;
+  int T;
+};
 
 void TC() {
-	int n, x, y, z;
-  cin >> n >> x >> y >> z;
+	int n, m, budget;
+  cin >> n >> m >> budget;
 
-  vector<int> arr(n);
-  for (auto& e : arr) cin >> e;
+  vector<vector<Ke>> ke(n + 1);
 
-  int max_len = INT_MAX;
-  if (y != 0) {
-    max_len = x / y;
+  for (int i = 1 ; i <= m; i++) {
+    int v1, v2, C, T;
+    cin >>v1 >> v2 >> C >> T;
+    ke[v1].push_back({v2, C, T});
+    ke[v2].push_back({v1, C, T});
   }
 
-  if (max_len == 0 && x < z) {
-    cout << -1 << endl;
-    return;
-  }
+  // d = vector<int>(n + 1);
 
-  for (auto& e : arr) e -= y;
+  const auto check = [&](int p) {
+    vector<int> d = vector<int>(n + 1, INT_MAX);
+    d[1] = 0;
 
-  // cout << arr << endl;
+    priority_queue<pair<int, int>> q;
+    q.push({0, 1});
 
-  // find 1 window with len <= max_len that sum >= z
+    while (!q.empty()) {
+      auto top = q.top(); q.pop();
+      int dis = -top.first;
+      int v = top.second;
 
-  int i = 0;
-  int j = 0;
+      if (dis != d[v]) continue;
 
-  int sum = arr[0];
-  int ans_i = -1;
-  int ans_j = -1;
-  int len = INT_MAX;
-  // cout << "z: " << z << ", sum: " << sum << endl;
+      if (v == n) break;
 
-  if (n == 1 && sum >= z) {
-    cout << 1 << " " << 1 << endl;
-    return;
-  }
-
-  while (i < n - 1 || j < n - 1) {
-    // cout << "i: " << i << ", j: " << j << ", sum: " << sum << endl;
-    if (sum >= z) {
-      if (len >= j - i + 1 && j - i + 1 <= max_len) {
-        ans_i = i;
-        ans_j = j;
-        len = j - i + 1;
-        // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-      }
-      // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-      while (i < j && (arr[i] <= 0 || (sum >= z))) {
-        sum -= arr[i];
-        i++;
-        if (sum >= z) {
-          if (len >= j - i + 1 && j - i + 1 <= max_len) {
-            ans_i = i;
-            ans_j = j;
-            len = j - i + 1;
-            // cout << "AA ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-            // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-          }
-        }
-      }
-      if (i == j && sum >= z) {
-        ans_i = i;
-        ans_j = j;
-        len = j - i + 1;
-        // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-        // cout << "BB ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-        if (j < n - 1) {
-          j++;
-          sum += arr[j];
-          // cout << "JJ2j: " << j << ", arr[j]: " << arr[j] << endl;
-        } else {
-          break;
+      for (auto& e : ke[v]) {
+        int cost = 0;
+        if (p > e.T) {
+          cost = e.C * (e.T - p) * (e.T - p);
         }
         
-      }
-    } else {
-      if (j < n - 1) {
-        j++;
-        sum += arr[j];
-        // cout << "JJ2j: " << j << ", arr[j]: " << arr[j] << endl;
-      } else {
-        break;
+        if (d[v] + cost < d[e.v]) {
+          d[e.v] = d[v] + cost;
+          q.push({-d[e.v], e.v});
+        }
       }
     }
-  }
-
-  while (i < n) {
-    if (sum >= 0 && len <= j - i + 1 && j - i + 1 <= max_len) {
-      ans_i = i;
-      ans_j = j;
-      len = j - i + 1;
+    if (d[n] <= budget) {
+      return true;
     }
-    sum -= arr[i];
-    i++;
-  }
+
+    return false;
+  };
 
 
-  if (ans_i == -1 && ans_j == -1) {
-    cout << -1 << endl;
-    return;
-  }
+  int ans = 0;
+
+  int beg = 0;
+  int end = 6000000;
   
-  cout << ans_i + 1 << " " << ans_j + 1 << endl;
+  while (beg <= end) {
+    int mid = (beg + end) / 2;
+    if (check(mid)) {
+      ans = mid;
+      beg = mid + 1;
+    } else {
+      end = mid - 1;
+    }
+  }
+
+  printf("%lld\n", ans);
+
 }
 int32_t main() {
 	ios::sync_with_stdio(false);
 	cin.tie(NULL);
 	cout.tie(NULL);
 	int t;
-	cin >> t;
-	while(t--)
+	// cin >> t;
+	// while(t--)
 		TC();
 	
 }

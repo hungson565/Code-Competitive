@@ -119,22 +119,22 @@ public:
   }
 
   void build() {  // build the tree
-    for (int i = n - 1; i > 0; --i) tree[i] = tree[i<<1] + tree[i<<1|1];
+    for (int i = n - 1; i > 0; --i) tree[i] = max(tree[i<<1], tree[i<<1|1]);
   }
 
   void modify(int p, int value) {  // set value at position p
-    for (tree[p += n] = value; p > 1; p >>= 1) tree[p>>1] = tree[p] + tree[p^1];
+    for (tree[p += n] = value; p > 1; p >>= 1) tree[p>>1] = max(tree[p], tree[p^1]);
   }
 
   int query(int l, int r) {  // sum on interval [l, r]
     r++;
-    int res = 0;
+    int res = INT_MIN;
     for (l += n, r += n; l < r; l >>= 1, r >>= 1) {
-      if (l&1) res += tree[l++];
-      if (r&1) res += tree[--r];
+      if (l&1) res = max(res, tree[l++]);
+      if (r&1) res = max(res, tree[--r]);
     }
     return res;
-  }  
+  }
 };
 
 #define INF 1e9 + 5
@@ -227,94 +227,103 @@ void TC() {
 
   // cout << arr << endl;
 
-  // find 1 window with len <= max_len that sum >= z
+  vector<int> pre(n);
+  pre[0] = arr[0];
+  for (int i = 1; i < n; i++) {
+    pre[i] = pre[i - 1] + arr[i];
+  }
 
-  int i = 0;
-  int j = 0;
+  ST st(pre);
 
-  int sum = arr[0];
   int ans_i = -1;
   int ans_j = -1;
   int len = INT_MAX;
-  // cout << "z: " << z << ", sum: " << sum << endl;
 
-  if (n == 1 && sum >= z) {
-    cout << 1 << " " << 1 << endl;
-    return;
-  }
-
-  while (i < n - 1 || j < n - 1) {
-    // cout << "i: " << i << ", j: " << j << ", sum: " << sum << endl;
-    if (sum >= z) {
-      if (len >= j - i + 1 && j - i + 1 <= max_len) {
-        ans_i = i;
-        ans_j = j;
-        len = j - i + 1;
-        // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-      }
-      // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-      while (i < j && (arr[i] <= 0 || (sum >= z))) {
-        sum -= arr[i];
-        i++;
-        if (sum >= z) {
-          if (len >= j - i + 1 && j - i + 1 <= max_len) {
-            ans_i = i;
-            ans_j = j;
-            len = j - i + 1;
-            // cout << "AA ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-            // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
+  for (int i = 0; i < n; i++) {
+    if (i == 0) {
+      if (n < 50000) {
+        for (int j = i; j < min(n, i + max_len); j++) {
+          if (pre[j] >= z) {
+            if (j - 0 + 1 <= max_len && j - 0 + 1 <= len) {
+              len = j - 0 + 1;
+              ans_i = 0;
+              ans_j = j;
+              break;
+            }
           }
         }
-      }
-      if (i == j && sum >= z) {
-        ans_i = i;
-        ans_j = j;
-        len = j - i + 1;
-        // cout << "ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-        // cout << "BB ans_i: " << ans_i << ", ans_j: " << ans_j << endl;
-        if (j < n - 1) {
-          j++;
-          sum += arr[j];
-          // cout << "JJ2j: " << j << ", arr[j]: " << arr[j] << endl;
-        } else {
-          break;
-        }
-        
-      }
-    } else {
-      if (j < n - 1) {
-        j++;
-        sum += arr[j];
-        // cout << "JJ2j: " << j << ", arr[j]: " << arr[j] << endl;
       } else {
-        break;
+        int beg = 0;
+        int end = n - 1;
+        int mid;
+        int find = n;
+        while (beg <= end) {
+          mid = (beg + end) / 2;
+          if (st.query(0, mid) >= z)  {
+            find = mid;
+            end--;
+          } else {
+            beg = mid + 1;
+          }
+        }
+        if (find != n && find - 0 + 1 <= max_len && find - 0 + 1 <= len) {
+          len = find - 0 + 1;
+          ans_i = 0;
+          ans_j = find;
+        }
       }
+
+      continue;
+    }
+
+    for (int j = i; j < min(n, i + max_len); j++) {
+      if (n < 50000) {
+        if (pre[j] >= z + pre[i - 1]) {
+          if (j - i + 1 <= max_len && j - i + 1 <= len) {
+            len = j - i + 1;
+            ans_i = i;
+            ans_j = j;
+            break;
+          } 
+        }
+      } else {
+        int beg = i;
+        int end = n - 1;
+        int mid;
+        int find = n;
+        while (beg <= end) {
+          mid = (beg + end) / 2;
+          if (st.query(i, mid) >= z)  {
+            find = mid;
+            end--;
+          } else {
+            beg = mid + 1;
+          }
+        }
+        if (find != n && find - i + 1 <= max_len && find - i + 1 <= len) {
+          len = find - i + 1;
+          ans_i = i;
+          ans_j = find;
+        }
+      }
+    
     }
   }
-
-  while (i < n) {
-    if (sum >= 0 && len <= j - i + 1 && j - i + 1 <= max_len) {
-      ans_i = i;
-      ans_j = j;
-      len = j - i + 1;
-    }
-    sum -= arr[i];
-    i++;
-  }
-
 
   if (ans_i == -1 && ans_j == -1) {
     cout << -1 << endl;
     return;
   }
-  
   cout << ans_i + 1 << " " << ans_j + 1 << endl;
+
+  
 }
 int32_t main() {
 	ios::sync_with_stdio(false);
 	cin.tie(NULL);
 	cout.tie(NULL);
 	int t;
+  // cout << "hello" << endl;
 	cin >> t;
 	while(t--)
 		TC();
